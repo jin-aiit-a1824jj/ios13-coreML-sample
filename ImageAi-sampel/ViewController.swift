@@ -8,20 +8,28 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate{
 
     @IBOutlet weak var photoDisplay: UIImageView!
     @IBOutlet weak var photoInfoDisplay: UITextView!
     
+    var imagePicker: UIImagePickerController!
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.sourceType = .camera
     }
 
     @IBAction func takePhoto(_ sender: Any) {
+        present(imagePicker, animated: true, completion: nil)
     }
     
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        photoDisplay.image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage
+        imagePicker.dismiss(animated: true, completion: nil)
+    }
 }
 
