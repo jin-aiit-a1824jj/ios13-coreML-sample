@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import CoreML
+import Vision
 
 class ViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate{
 
@@ -30,6 +32,42 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         photoDisplay.image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage
         imagePicker.dismiss(animated: true, completion: nil)
+        self.imageInference(image: ( info[UIImagePickerController.InfoKey.originalImage] as? UIImage) )
     }
+    
+    func imageInference(image: UIImage?){
+        guard let model = try? VNCoreMLModel(for: Resnet50().model) else {
+            fatalError("モデルをロードできません")
+        }
+        
+        let request = VNCoreMLRequest(model: model) { [weak self] request, error in
+            
+            guard let results = request.results as? [VNClassificationObservation],
+                let firstReult = results.first else {
+                    fatalError("判定ができません")
+            }
+            
+            DispatchQueue.main.async {
+                self?.photoInfoDisplay.text = "確率 = (\(firstReult.confidence * 100))% \n\n 詳細→ \(firstReult.identifier)"
+                print(results)
+            }
+        }
+        
+        guard let ciImage = CIImage(image: image!) else {
+            fatalError("画像が変換できません")
+        }
+        
+        let imageHandler = VNImageRequestHandler(ciImage: ciImage)
+        
+        DispatchQueue.global(qos: .userInteractive).async {
+            do{
+                try imageHandler.perform([request])
+            }catch{
+                print("エラー\(error)")
+            }
+        }
+        
+    }
+    
 }
 
