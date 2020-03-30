@@ -36,7 +36,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     }
     
     func imageInference(image: UIImage?){
-        guard let model = try? VNCoreMLModel(for: Resnet50().model) else {
+        guard let model = try? VNCoreMLModel(for: Inceptionv3().model) else {
             fatalError("モデルをロードできません")
         }
         
