@@ -9,6 +9,7 @@
 import UIKit
 import CoreML
 import Vision
+import AVFoundation
 
 class ViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate{
 
@@ -48,7 +49,13 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
             }
             
             DispatchQueue.main.async {
-                self?.photoInfoDisplay.text = "確率 = (\(firstReult.confidence * 100))% \n\n 詳細→ \(firstReult.identifier)"
+                self?.photoInfoDisplay.text = "Accruacy = (\(firstReult.confidence * 100))% \n\n Text Label:→ \(firstReult.identifier)"
+                
+                let utterWords = AVSpeechUtterance(string: (self?.photoInfoDisplay.text!)!)
+                utterWords.voice = AVSpeechSynthesisVoice(language: "en-us")
+                let synthesizer = AVSpeechSynthesizer()
+                synthesizer.speak(utterWords)
+                
                 print(results)
             }
         }
